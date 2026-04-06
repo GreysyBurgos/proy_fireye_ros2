@@ -11,6 +11,7 @@
 
   <!-- Lista de paquetes que integran el proyecto -->
   <exec_depend>proy_fireye_mundo</exec_depend>
+  <exec_depend>proy_fireye_slam</exec_depend>
   
 
   <export>

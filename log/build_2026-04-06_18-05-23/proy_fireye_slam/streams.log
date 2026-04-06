@@ -1,0 +1,24 @@
+[0.779s] Invoking command in '/home/grey/Documentos/GitHub/proy_fireye_ros2/proy_fireye_slam': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/grey/Documentos/GitHub/proy_fireye_ros2/install/proy_fireye_slam/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/proy_fireye_slam build --build-base /home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/build install --record /home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/install.log --single-version-externally-managed install_data
+[1.068s] running egg_info
+[1.083s] writing ../build/proy_fireye_slam/proy_fireye_slam.egg-info/PKG-INFO
+[1.083s] writing dependency_links to ../build/proy_fireye_slam/proy_fireye_slam.egg-info/dependency_links.txt
+[1.083s] writing entry points to ../build/proy_fireye_slam/proy_fireye_slam.egg-info/entry_points.txt
+[1.083s] writing requirements to ../build/proy_fireye_slam/proy_fireye_slam.egg-info/requires.txt
+[1.083s] writing top-level names to ../build/proy_fireye_slam/proy_fireye_slam.egg-info/top_level.txt
+[1.113s] reading manifest file '../build/proy_fireye_slam/proy_fireye_slam.egg-info/SOURCES.txt'
+[1.113s] writing manifest file '../build/proy_fireye_slam/proy_fireye_slam.egg-info/SOURCES.txt'
+[1.113s] running build
+[1.113s] running build_py
+[1.113s] copying proy_fireye_slam/initial_pose_pub.py -> /home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/build/lib/proy_fireye_slam
+[1.114s] running install
+[1.119s] running install_lib
+[1.133s] copying /home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/build/lib/proy_fireye_slam/initial_pose_pub.py -> /home/grey/Documentos/GitHub/proy_fireye_ros2/install/proy_fireye_slam/lib/python3.12/site-packages/proy_fireye_slam
+[1.134s] byte-compiling /home/grey/Documentos/GitHub/proy_fireye_ros2/install/proy_fireye_slam/lib/python3.12/site-packages/proy_fireye_slam/initial_pose_pub.py to initial_pose_pub.cpython-312.pyc
+[1.135s] running install_data
+[1.135s] running install_egg_info
+[1.149s] removing '/home/grey/Documentos/GitHub/proy_fireye_ros2/install/proy_fireye_slam/lib/python3.12/site-packages/proy_fireye_slam-0.0.0-py3.12.egg-info' (and everything under it)
+[1.149s] Copying ../build/proy_fireye_slam/proy_fireye_slam.egg-info to /home/grey/Documentos/GitHub/proy_fireye_ros2/install/proy_fireye_slam/lib/python3.12/site-packages/proy_fireye_slam-0.0.0-py3.12.egg-info
+[1.149s] running install_scripts
+[1.227s] Installing initial_pose_pub script to /home/grey/Documentos/GitHub/proy_fireye_ros2/install/proy_fireye_slam/lib/proy_fireye_slam
+[1.228s] writing list of installed files to '/home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/install.log'
+[1.251s] Invoked command in '/home/grey/Documentos/GitHub/proy_fireye_ros2/proy_fireye_slam' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/grey/Documentos/GitHub/proy_fireye_ros2/install/proy_fireye_slam/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/proy_fireye_slam build --build-base /home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/build install --record /home/grey/Documentos/GitHub/proy_fireye_ros2/build/proy_fireye_slam/install.log --single-version-externally-managed install_data

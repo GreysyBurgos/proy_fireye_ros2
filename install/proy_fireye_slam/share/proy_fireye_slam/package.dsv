@@ -1,0 +1,4 @@
+source;share/proy_fireye_slam/hook/pythonpath.dsv
+source;share/proy_fireye_slam/hook/pythonpath.sh
+source;share/proy_fireye_slam/hook/ament_prefix_path.dsv
+source;share/proy_fireye_slam/hook/ament_prefix_path.sh
