@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(proy_fireye)
+project(proy_fireye_ros2)
 
 # Solo necesitamos la herramienta de construcción de ROS 2
 find_package(ament_cmake REQUIRED)
