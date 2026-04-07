@@ -31,6 +31,7 @@ setup(
             'initial_pose_pub = proy_fireye_slam.initial_pose_pub:main',
             'nav_to_pose = proy_fireye_slam.nav_to_pose:main',
             'follow_waypoints = proy_fireye_slam.follow_waypoints:main',
+            'fireye_mission_bt = proy_fireye_slam.fireye_mission_bt:main',
         ],
     },
 )
