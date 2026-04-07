@@ -8,26 +8,26 @@ def main():
     # Creamos el objeto navegador
     nav = BasicNavigator()
 
-    # 1. Esperamos a que Nav2 esté totalmente activo
+    # Esperamos a que Nav2 esté totalmente activo
     # (Esto evita errores si lanzas el script muy rápido)
     nav.waitUntilNav2Active()
 
-    # 2. Definimos la meta (Goal)
+    # Definimos la meta (Goal)
     goal_pose = PoseStamped()
     goal_pose.header.frame_id = 'map'
     goal_pose.header.stamp = nav.get_clock().now().to_msg()
 
-    # --- AQUÍ CAMBIAS LAS COORDENADAS ---
-    goal_pose.pose.position.x = 1.5  # Modifica esto según tu mapa
-    goal_pose.pose.position.y = 0.5
-    goal_pose.pose.orientation.w = 1.0 # Mirando hacia "adelante"
+    # --- COORDENADAS META ---
+    goal_pose.pose.position.x = -10.287074
+    goal_pose.pose.position.y = -6.764256
+    goal_pose.pose.orientation.w = -0.00143432
     # ------------------------------------
 
-    # 3. ¡A navegar!
+    
     print(f"Enviando al robot a: X={goal_pose.pose.position.x}, Y={goal_pose.pose.position.y}...")
     nav.goToPose(goal_pose)
 
-    # 4. Bucle para ver el progreso
+    # Bucle para ver el progreso
     i = 0
     while not nav.isTaskComplete():
         i += 1
@@ -36,7 +36,7 @@ def main():
         if feedback and i % 5 == 0:
             print(f'Distancia restante: {feedback.distance_remaining:.2f} metros.')
 
-    # 5. Resultado final
+    # Resultado final
     result = nav.getResult()
     if result == TaskResult.SUCCEEDED:
         print('¡Victoria! El robot ha llegado a la meta.')
