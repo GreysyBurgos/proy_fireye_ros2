@@ -15,11 +15,15 @@ ROS_DISTRO = os.environ.get('ROS_DISTRO')
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     map_dir = LaunchConfiguration(
+    'map',
+    default=os.path.join(
+        os.path.expanduser('~'),
+        'proy_fireye_ros2',
+        'proy_fireye_slam',
         'map',
-        default=os.path.join(
-            get_package_share_directory('proy_fireye_slam'),
-            'map',
-            'my_map.yaml'))
+        'my_map.yaml'
+    )
+)
 
     param_file_name = TURTLEBOT3_MODEL + '.yaml'
     if ROS_DISTRO == 'humble':
