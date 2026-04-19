@@ -12,6 +12,7 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
+
 def generate_launch_description():
     """Genera la descripción de lanzamiento para la simulación completa.
 
@@ -44,6 +45,8 @@ def generate_launch_description():
             'gz_args': ['-r -s -v2 ', world],
             'on_exit_shutdown': 'false'
         }.items()
+
+    
     )
 
 
@@ -81,6 +84,9 @@ def generate_launch_description():
             get_package_share_directory('proy_fireye_mundo'),
             'models')
     )
+
+
+
 
     # Creación de la descripción de lanzamiento
     ld = LaunchDescription()

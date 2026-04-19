@@ -1,10 +1,12 @@
+#importar  biblioteca Python ROS2
 import rclpy
 import py_trees
 import time
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
+from rclpy.node import Node
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
+from std_srvs.srv import Trigger
 
-# --- NODO 1: ESTABLECER POSE INICIAL (Bypass Manual) ---
 class SetInitialPose(py_trees.behaviour.Behaviour):
     def __init__(self, name, node):
         super().__init__(name)
@@ -49,7 +51,6 @@ class SetInitialPose(py_trees.behaviour.Behaviour):
         time.sleep(2.0)
         return py_trees.common.Status.SUCCESS
 
-# --- NODO 2: NAVEGAR A UN PUNTO ---
 class NavToPose(py_trees.behaviour.Behaviour):
     def __init__(self, name, nav, x, y):
         super().__init__(name)
@@ -76,7 +77,6 @@ class NavToPose(py_trees.behaviour.Behaviour):
             return py_trees.common.Status.SUCCESS
         return py_trees.common.Status.FAILURE
 
-# --- NODO 3: ESPERAR ---
 class WaitNode(py_trees.behaviour.Behaviour):
     def __init__(self, name, seconds):
         super().__init__(name)
@@ -92,45 +92,63 @@ class WaitNode(py_trees.behaviour.Behaviour):
             return py_trees.common.Status.RUNNING
         return py_trees.common.Status.SUCCESS
 
-def main():
-    rclpy.init()
-    # El Navigator es un Nodo de ROS 2
-    nav = BasicNavigator()
-    
-    print("Esperando a que Nav2 esté activo...")
-    nav.waitUntilNav2Active()
+class FireyeMisionServicio(Node):
+    def __init__(self):
+        super().__init__('fireye_mision_servicio')
+        self.get_logger().info('Nodo de servicio de misión iniciado')
+        
+        self.nav = BasicNavigator()
 
-    # CONFIGURACIÓN DE PUNTOS
-    PUNTO_MISION = {"x": 6.447230, "y": -0.803581}
-    PUNTO_BASE = {"x": 0.0, "y": 0.0}
+        self.srv = self.create_service(Trigger, 'iniciar_mision', self.mision_callback)
+        self.get_logger().info('Servicio listo, esperando llamada...')
 
-    # CONSTRUCCIÓN DEL ÁRBOL
-    root = py_trees.composites.Sequence(name="Misión Fireye", memory=True)
-    
-    # IMPORTANTE: Pasamos el objeto 'nav' que actúa como nodo
-    localizar = SetInitialPose("Localizar Robot", nav)
-    ir_a_inspeccion = NavToPose("Zona de Inspección", nav, PUNTO_MISION["x"], PUNTO_MISION["y"])
-    esperar = WaitNode("Esperar/Escanear", 5)
-    volver_a_casa = NavToPose("Volver a Base", nav, PUNTO_BASE["x"], PUNTO_BASE["y"])
+    def mision_callback(self, request, response):
+        self.get_logger().info('Misión recibida. Esperando Nav2...')
+        self.nav.waitUntilNav2Active()
 
-    #------------------------------------------
-    root.add_children([localizar, ir_a_inspeccion, esperar, volver_a_casa])
+        PUNTO_MISION = {"x": 6.447230, "y": -0.803581}
+        PUNTO_BASE   = {"x": 0.0,      "y": 0.0}
 
-    print("\n--- INICIANDO ÁRBOL DE COMPORTAMIENTO ---")
+        root = py_trees.composites.Sequence(name="Misión Fireye", memory=True)
+        root.add_children([
+            SetInitialPose("Localizar Robot", self),
+            NavToPose("Zona de Inspección", self.nav, PUNTO_MISION["x"], PUNTO_MISION["y"]),
+            WaitNode("Esperar/Escanear", 5),
+            NavToPose("Volver a Base", self.nav, PUNTO_BASE["x"], PUNTO_BASE["y"]),
+        ])
+
+        try:
+            while rclpy.ok():
+                root.tick_once()
+                if root.status == py_trees.common.Status.SUCCESS:
+                    response.success = True
+                    response.message = 'Misión completada correctamente'
+                    break
+                elif root.status == py_trees.common.Status.FAILURE:
+                    response.success = False
+                    response.message = 'Misión fallida'
+                    break
+                time.sleep(0.1)
+        except Exception as e:
+            response.success = False
+            response.message = f'Error: {str(e)}'
+
+        return response
+
+def main(args=None):
+    # inicializa la comunicacion ROS2
+    rclpy.init(args=args)
+    # creamos el nodo
+    service = FireyeMisionServicio()
     try:
-        while rclpy.ok():
-            root.tick_once()
-            if root.status == py_trees.common.Status.SUCCESS:
-                print("\n[!] Misión completada con éxito.")
-                break
-            elif root.status == py_trees.common.Status.FAILURE:
-                print("\n[X] La misión ha fallado.")
-                break
-            time.sleep(0.1)
+        #dejamos abierto el servicio
+        rclpy.spin(service)
     except KeyboardInterrupt:
-        pass
-
-    rclpy.shutdown()
-
-if __name__ == '__main__':
+        service.get_logger().info('Cerrando el nodo service')
+    finally:
+        #destruimos el nodo
+        service.destroy_node()
+        #cerramos la comunicacion
+        rclpy.shutdown()
+if __name__=='__main__':
     main()
