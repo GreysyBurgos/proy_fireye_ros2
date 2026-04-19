@@ -45,23 +45,23 @@ rosdep install --from-paths src --ignore-src -y
 colcon build --symlink-install
 source install/setup.bash
 ```
----
 
 ## 🛠️ Compilación
 
-⚠️ Importante: ejecutar siempre desde la raíz del workspace
+> ⚠️ **Importante:** ejecutar siempre desde la raíz del workspace.
 
-```
+```bash
 colcon build
 ```
 
 Después de compilar:
 
-```
+```bash
 source install/setup.bash
 ```
 
 ---
+
 ## 🤖 Funcionalidades
 
 * Simulación de entorno personalizado
@@ -70,38 +70,53 @@ source install/setup.bash
 * Ejecución de movimientos (ej: ir hacia un punto, esperar 5 segundos y volver al origen)
 
 ---
+
 ## 🌍 Lanzar el mundo y los diferentes servicios
 
-Terminal 1:
-```
+### Terminal 1
+
+```bash
 ros2 launch proy_fireye_mundo fireye_mundo.launch.py
 ```
-Terminal 2:
-```
+
+### Terminal 2
+
+```bash
 ros2 launch proy_fireye_slam my_tb3_navigator.launch.py use_sim_time:=True
 ```
-Terminal 3:
-```
-#navegar a un punto 
+
+### Terminal 3
+
+```bash
+# Navegar a un punto
 ros2 run proy_fireye_slam initial_pose_pub
 ros2 run proy_fireye_slam nav_to_pose
 
-#navegar una ruta
+# Navegar una ruta
 ros2 run proy_fireye_slam initial_pose_pub
 ros2 run proy_fireye_slam follow_waypoints
 
-#pose inicial -> navegar a un punto -> esperar 5 segundos -> volver a pose inicial
+# Pose inicial -> navegar a un punto -> esperar 5 segundos -> volver a pose inicial
 ros2 run proy_fireye_slam fireye_mission_bt
 ```
+
 ---
+
 ## 👥 Autores
 
-* GRUPO 6
-* Pablo Chasi, Imanol Fifuero, Manuel Pérez, Yixuan Chen, Yulin Jiang y Greysy Burgos
+* **GRUPO 6**
+* Pablo Chasi
+* Imanol Fifuero
+* Manuel Pérez
+* Yixuan Chen
+* Yulin Jiang
+* Greysy Burgos
 
 ---
+
 ## 📌 Estado del proyecto
 
-🚧 En desarrollo
+🚧 **En desarrollo**
+
 # Proyecto-Robotica
 6º Proyecto de grado en tecnologías interactivas
