@@ -28,7 +28,7 @@ turtlebot3_ws...
 ⚠️ IMPORTANTE: Este repositorio debe clonarse dentro de la carpeta src de tu espacio de trabajo de TurtleBot3 (turtlebot3_ws) para asegurar la compatibilidad con las dependencias de simulación existentes.
 
 ```
-# 1. Accede a la carpeta 'src' de tu workspace de TurtleBot3
+1. Accede a la carpeta 'src' de tu workspace de TurtleBot3
 # (Si tu carpeta tiene otro nombre, ajusta la ruta)
 cd ~/turtlebot3_ws/src
 
