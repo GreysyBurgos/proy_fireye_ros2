@@ -29,19 +29,19 @@ turtlebot3_ws...
 
 ```
 1. Accede a la carpeta 'src' de tu workspace de TurtleBot3
-# (Si tu carpeta tiene otro nombre, ajusta la ruta)
+(Si tu carpeta tiene otro nombre, ajusta la ruta)
 cd ~/turtlebot3_ws/src
 
-# 2. Clona el repositorio dentro de la carpeta src
+2. Clona el repositorio dentro de la carpeta src
 git clone [https://github.com/GreysyBurgos/proy_fireye_ros2.git](https://github.com/GreysyBurgos/proy_fireye_ros2.git)
 
-# 3. Regresa a la raíz del workspace para compilar
+3. Regresa a la raíz del workspace para compilar
 cd ..
 
-# 4. Instalar dependencias faltantes
+4. Instalar dependencias faltantes
 rosdep install --from-paths src --ignore-src -y
 
-# 5. Compilar el proyecto
+5. Compilar el proyecto
 colcon build --symlink-install
 source install/setup.bash
 ```
