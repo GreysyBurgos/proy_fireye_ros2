@@ -1,16 +1,13 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>proy_fireye_slam</name>
+  <name>proy_fireye_movimiento</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="122355310+GreysyBurgos@users.noreply.github.com">grey</maintainer>
+  <maintainer email="Pablochasito24@gmail.com">pablo</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
-  <depend>nav_msgs</depend>
-  <depend>geometry_msgs</depend>
-
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

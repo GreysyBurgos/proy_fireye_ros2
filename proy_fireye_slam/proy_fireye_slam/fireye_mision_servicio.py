@@ -96,39 +96,43 @@ class FireyeMisionServicio(Node):
     def __init__(self):
         super().__init__('fireye_mision_servicio')
         self.get_logger().info('Nodo de servicio de misión iniciado')
+        
         self.nav = BasicNavigator()
-        self.nav.waitUntilNav2Active()
+
         self.srv = self.create_service(Trigger, 'iniciar_mision', self.mision_callback)
-        self.get_logger().info('Misión iniciada')
+        self.get_logger().info('Servicio listo, esperando llamada...')
 
     def mision_callback(self, request, response):
-            # CONFIGURACIÓN DE PUNTOS
+        self.get_logger().info('Misión recibida. Esperando Nav2...')
+        self.nav.waitUntilNav2Active()
+
         PUNTO_MISION = {"x": 6.447230, "y": -0.803581}
-        PUNTO_BASE = {"x": 0.0, "y": 0.0}
+        PUNTO_BASE   = {"x": 0.0,      "y": 0.0}
 
         root = py_trees.composites.Sequence(name="Misión Fireye", memory=True)
-
-        localizar = SetInitialPose("Localizar Robot", self)
-        ir_a_inspeccion = NavToPose("Zona de Inspección", self.nav, PUNTO_MISION["x"], PUNTO_MISION["y"])
-        esperar = WaitNode("Esperar/Escanear", 5)
-        volver_a_casa = NavToPose("Volver a Base", self.nav, PUNTO_BASE["x"], PUNTO_BASE["y"])
-
-        root.add_children([localizar, ir_a_inspeccion, esperar, volver_a_casa])
+        root.add_children([
+            SetInitialPose("Localizar Robot", self),
+            NavToPose("Zona de Inspección", self.nav, PUNTO_MISION["x"], PUNTO_MISION["y"]),
+            WaitNode("Esperar/Escanear", 5),
+            NavToPose("Volver a Base", self.nav, PUNTO_BASE["x"], PUNTO_BASE["y"]),
+        ])
 
         try:
             while rclpy.ok():
                 root.tick_once()
                 if root.status == py_trees.common.Status.SUCCESS:
                     response.success = True
-                    response.message = 'Misión iniciada correctamente'
+                    response.message = 'Misión completada correctamente'
                     break
                 elif root.status == py_trees.common.Status.FAILURE:
                     response.success = False
                     response.message = 'Misión fallida'
                     break
+                time.sleep(0.1)
         except Exception as e:
             response.success = False
-            response.message = f'Error durante la misión: {str(e)}'
+            response.message = f'Error: {str(e)}'
+
         return response
 
 def main(args=None):
