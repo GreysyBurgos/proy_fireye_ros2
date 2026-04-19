@@ -13,7 +13,7 @@ Permite realizar dos tareas críticas:
 - **Lenguajes:** C++ y Python
 ---
 ## 📁 Estructura del proyecto
-```
+```bash
 turtlebot3_ws...
 ├──proy_fireye_ros2/
     ├── src/
@@ -21,6 +21,7 @@ turtlebot3_ws...
     │   ├── proy_fireye_mundo/    # Mundo de simulación
         ├── proy_fireye_SLAM/      #navegación del robot
         ├── proy_fireye_bags/      #pruebas simulación
+```
 ---
 
 ## 🚀 Instalación
