@@ -27,7 +27,7 @@ turtlebot3_ws...
 
 ⚠️ IMPORTANTE: Este repositorio debe clonarse dentro de la carpeta src de tu espacio de trabajo de TurtleBot3 (turtlebot3_ws) para asegurar la compatibilidad con las dependencias de simulación existentes.
 
-```
+```bash
 1. Accede a la carpeta 'src' de tu workspace de TurtleBot3
 (Si tu carpeta tiene otro nombre, ajusta la ruta)
 cd ~/turtlebot3_ws/src
@@ -46,6 +46,7 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
+---
 ## 🛠️ Compilación
 
 > ⚠️ **Importante:** ejecutar siempre desde la raíz del workspace.
@@ -117,6 +118,3 @@ ros2 run proy_fireye_slam fireye_mission_bt
 ## 📌 Estado del proyecto
 
 🚧 **En desarrollo**
-
-# Proyecto-Robotica
-6º Proyecto de grado en tecnologías interactivas
