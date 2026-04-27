@@ -15,14 +15,14 @@ Permite realizar dos tareas críticas:
 ## 📁 Estructura del proyecto
 ```bash
 turtlebot3_ws...
-├──proy_fireye_ros2/
-    ├── src/
-    │   ├── proy_fireye_ros2/          # Código principal del robot
-    │   ├── proy_fireye_mundo/    # Mundo de simulación
-        ├── proy_fireye_SLAM/      #navegación del robot
-        ├── proy_fireye_bags/      #pruebas simulación
-        ├── proy_fireye_movimiento/
-        ├── proy_fireye_interfaces/ 
+├── src/
+    ├──proy_fireye_ros2/
+        │   ├── proy_fireye_ros2/          # Código principal del robot
+        │   ├── proy_fireye_mundo/    # Mundo de simulación
+            ├── proy_fireye_SLAM/      #navegación del robot
+            ├── proy_fireye_bags/      #pruebas simulación
+            ├── proy_fireye_movimiento/
+            ├── proy_fireye_interfaces/ 
 ```
 ---
 
