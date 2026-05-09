@@ -9,6 +9,30 @@ import numpy as np
 
 
 class CameraPreprocessor(Node):
+
+    def detect_neck(self, mask, x, y, w, h):
+        """
+        Detecta una reducción brusca de anchura en la parte superior del objeto.
+        Se usa para clasificar botellas.
+        """
+        roi = mask[y:y+h, x:x+w]
+
+        if roi.size == 0:
+            return False
+
+        top_part = roi[0:int(h * 0.30), :]
+        middle_part = roi[int(h * 0.40):int(h * 0.70), :]
+
+        top_width = cv2.countNonZero(top_part)
+        middle_width = cv2.countNonZero(middle_part)
+
+        if middle_width == 0:
+            return False
+
+        ratio = top_width / float(middle_width)
+
+        return ratio < 0.65
+    
     def __init__(self):
         super().__init__('camera_preprocessor')
 
@@ -125,7 +149,23 @@ class CameraPreprocessor(Node):
             if w == 0 or h == 0:
                 continue
 
-            aspect_ratio = w / float(h)
+            aspect_ratio = h / float(w)
+
+            perimeter = cv2.arcLength(contour, True)
+            epsilon = 0.04 * perimeter
+            approx = cv2.approxPolyDP(contour, epsilon, True)
+            vertices = len(approx)
+
+            object_type = 'Candidato'
+
+            has_neck = self.detect_neck(mask_bright, x, y, w, h)
+
+            if vertices == 4 and 0.4 <= aspect_ratio <= 1.2:
+                object_type = 'Lata'
+            elif has_neck:
+                object_type = 'Botella'
+            elif aspect_ratio > 2.0 and vertices >= 5:
+                object_type = 'Aerosol'
 
             # 候选物体一般不要太扁，也不要太细
             if aspect_ratio < 0.2 or aspect_ratio > 5.0:
@@ -146,26 +186,39 @@ class CameraPreprocessor(Node):
 
             # 如果亮色区域太少，可能不是金属罐或玻璃反光
             # 这个值可以调：0.03、0.05、0.10 都可以试
-            if bright_ratio < 0.03:
-                continue
+            #if bright_ratio < 0.03:
+                #continue
 
             candidate_count += 1
+
+            M = cv2.moments(contour)
+            
+            if M["m00"] != 0:
+               center_x = int(M["m10"] / M["m00"])
+               center_y = int(M["m01"] / M["m00"])
+            else:
+               center_x = x + w // 2
+               center_y = y + h // 2
+
+            cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+            cv2.circle(output, (center_x, center_y), 5, (0, 0, 255), -1)
+            self.get_logger().info(
+                    f'Detectado: {object_type} | centroide=({center_x},{center_y}) | bbox=({x},{y},{w},{h}) | vertices={vertices} | aspect_ratio={aspect_ratio:.2f}'
+
+            )
 
             # ====================================================
             # 画矩形框：调试用
             # ====================================================
             cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-            # 画圆形框：可选
-            center_x = x + w // 2
-            center_y = y + h // 2
-            radius = int(max(w, h) / 2)
-            cv2.circle(output, (center_x, center_y), radius, (255, 0, 0), 2)
+        
 
             # 写文字
             cv2.putText(
                 output,
-                f'Candidate {candidate_count}',
+               f'{object_type} {candidate_count} ({center_x},{center_y})',
                 (x, y - 10),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
@@ -196,7 +249,7 @@ class CameraPreprocessor(Node):
 
         cv2.waitKey(1)
 
-
+       
 def main(args=None):
     rclpy.init(args=args)
 
