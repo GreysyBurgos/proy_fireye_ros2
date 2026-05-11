@@ -1,0 +1,10 @@
+# Goal
+string nombre_ruta
+---
+# Result
+bool exito
+string mensaje
+---
+# Feedback
+string etapa_actual
+float32 progreso

@@ -39,5 +39,6 @@ endif()
 # Añadir la siguiente funcion
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/MiMovimientoMsg.srv"
+  "action/Mision.action"
 )
 ament_package()
