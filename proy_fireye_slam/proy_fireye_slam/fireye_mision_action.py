@@ -198,7 +198,7 @@ class MisionAccionServidor(Node):
 
         self._action_server = ActionServer(
             self,
-            MisionNavegacion,
+            Mision,
             'ejecutar_mision',
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
@@ -247,8 +247,8 @@ class MisionAccionServidor(Node):
         nombre = goal_handle.request.nombre_ruta
         self.get_logger().info(f'Ejecutando BT: "{nombre}"')
 
-        feedback_msg = MisionNavegacion.Feedback()
-        result = MisionNavegacion.Result()
+        feedback_msg = Mision.Feedback()
+        result = Mision.Result()
 
         # Construcción del árbol para esta ruta
         try:
