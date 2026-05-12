@@ -100,8 +100,9 @@ class FireyeMissionServer(Node):
         result = Mision.Result()
 
         # ── Waypoints (ajusta a tu mapa) ───────────────────────────────
-        PUNTO_A   = self.make_pose(x=1.0, y=1.0)
-        PUNTO_B   = self.make_pose(x=2.0, y=2.0)
+        PUNTO_A   = self.make_pose(x= 2.118820786563834, y=-0.019378357602993706)
+        PUNTO_B   = self.make_pose(x=2.9501930136819947, y=-2.2616916815258326
+)
         PAUSA_SEG = 5.0
 
         # ── Paso 1: ir a Punto A ───────────────────────────────────────
