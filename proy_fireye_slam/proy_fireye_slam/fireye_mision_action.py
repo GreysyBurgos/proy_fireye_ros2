@@ -192,7 +192,7 @@ def construir_arbol(nombre_ruta: str, nav, node, goal_handle):
 class MisionAccionServidor(Node):
 
     def __init__(self):
-        super().__init__('mision_accion_servidor')
+        super().__init__('fireye_mision_action')
         self._cb_group = ReentrantCallbackGroup()
         self._navigator = BasicNavigator()
 
