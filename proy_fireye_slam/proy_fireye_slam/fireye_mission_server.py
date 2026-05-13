@@ -14,35 +14,32 @@ import threading
 
 
 class FireyeMissionServer(Node):
+    """Servidor de acción ROS2 que ejecuta misiones de patrulla via Nav2.
+
+    Expone ``/fireye/mission`` y navega la secuencia: Punto A → pausa → Punto B.
+    """
 
     def __init__(self):
+        """Inicializa el nodo, el action server y el action client de Nav2."""
         super().__init__('fireye_mission_server')
 
         self.cb_group = ReentrantCallbackGroup()
 
-        # ── Action Server: recibe órdenes ──────────────────────────────
-        # Escucha en /fireye/mission
-        # Cualquier cliente (o el service trigger) puede llamarlo
         self._action_server = ActionServer(
-            self,
-            Mision,
-            '/fireye/mission',
-            self.execute_callback,
-            callback_group=self.cb_group
+            self, Mision, '/fireye/mission',
+            self.execute_callback, callback_group=self.cb_group
         )
 
-        # ── Action Client: habla con Nav2 ──────────────────────────────
         self._nav_client = ActionClient(
-            self,
-            NavigateToPose,
-            'navigate_to_pose',
+            self, NavigateToPose, 'navigate_to_pose',
             callback_group=self.cb_group
         )
 
         self.get_logger().info('FireyeMissionServer listo en /fireye/mission')
 
-    # ── Helper: construir PoseStamped ──────────────────────────────────
-    def make_pose(self, x, y, yaw_w=1.0, yaw_z=0.0):
+    def make_pose(self, x: float, y: float,
+                  yaw_w: float = 1.0, yaw_z: float = 0.0) -> PoseStamped:
+        """Construye un PoseStamped en el frame ``map`` con la posición y orientación dadas."""
         pose = PoseStamped()
         pose.header.frame_id = 'map'
         pose.header.stamp = self.get_clock().now().to_msg()
@@ -53,8 +50,12 @@ class FireyeMissionServer(Node):
         pose.pose.orientation.z = yaw_z
         return pose
 
-    # ── Helper: navegar a un punto y esperar ───────────────────────────
     def navigate_to(self, pose: PoseStamped) -> bool:
+        """Envía un goal a Nav2 y bloquea hasta obtener resultado (timeout 90s).
+
+        Returns:
+            True si Nav2 completó con éxito, False en caso contrario.
+        """
         if not self._nav_client.wait_for_server(timeout_sec=5.0):
             self.get_logger().error('Nav2 no disponible.')
             return False
@@ -92,20 +93,20 @@ class FireyeMissionServer(Node):
 
         return result_container['success']
 
-    # ── Callback principal del Action Server ───────────────────────────
-    async def execute_callback(self, goal_handle):
+    async def execute_callback(self, goal_handle) -> Mision.Result:
+        """Ejecuta la misión: navega a Punto A, pausa 5s y regresa a Punto B.
+
+        Publica feedback de progreso en cada etapa. Aborta si algún tramo falla.
+        """
         self.get_logger().info(f'Misión recibida: {goal_handle.request.nombre_ruta}')
 
         feedback_msg = Mision.Feedback()
         result = Mision.Result()
 
-        # ── Waypoints (ajusta a tu mapa) ───────────────────────────────
-        PUNTO_A   = self.make_pose(x= 2.118820786563834, y=-0.019378357602993706)
-        PUNTO_B   = self.make_pose(x=2.9501930136819947, y=-2.2616916815258326
-)
+        PUNTO_A   = self.make_pose(x=4.447230, y=-0.019378357602993706)
+        PUNTO_B   = self.make_pose(x=0, y=0)
         PAUSA_SEG = 5.0
 
-        # ── Paso 1: ir a Punto A ───────────────────────────────────────
         feedback_msg.etapa_actual = 'Navegando al Punto A'
         feedback_msg.progreso = 0.0
         goal_handle.publish_feedback(feedback_msg)
@@ -117,7 +118,6 @@ class FireyeMissionServer(Node):
             result.mensaje = 'ERROR: no se pudo llegar al Punto A'
             return result
 
-        # ── Paso 2: pausa en A ─────────────────────────────────────────
         feedback_msg.etapa_actual = 'Pausa en Punto A'
         feedback_msg.progreso = 50.0
         goal_handle.publish_feedback(feedback_msg)
@@ -125,7 +125,6 @@ class FireyeMissionServer(Node):
         self.get_logger().info(f'Pausa de {PAUSA_SEG}s en Punto A...')
         time.sleep(PAUSA_SEG)
 
-        # ── Paso 3: ir a Punto B ───────────────────────────────────────
         feedback_msg.etapa_actual = 'Navegando al Punto B'
         feedback_msg.progreso = 75.0
         goal_handle.publish_feedback(feedback_msg)
@@ -137,7 +136,6 @@ class FireyeMissionServer(Node):
             result.mensaje = 'ERROR: no se pudo llegar al Punto B'
             return result
 
-        # ── Completado ─────────────────────────────────────────────────
         feedback_msg.etapa_actual = 'Misión completada'
         feedback_msg.progreso = 100.0
         goal_handle.publish_feedback(feedback_msg)
@@ -150,6 +148,7 @@ class FireyeMissionServer(Node):
 
 
 def main(args=None):
+    """Inicializa el nodo y lo ejecuta con MultiThreadedExecutor."""
     rclpy.init(args=args)
     node = FireyeMissionServer()
 
