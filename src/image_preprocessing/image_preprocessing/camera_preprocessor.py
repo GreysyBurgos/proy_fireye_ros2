@@ -53,6 +53,11 @@ class CameraPreprocessor(Node):
             self.image_callback,
             10
         )
+        self.output_pub = self.create_publisher(
+    Image,
+    '/camera/detection_output',
+    10
+    )
 
         # ==============================
         # Tarea 2.1：Canny 阈值，可调参数
@@ -236,18 +241,19 @@ class CameraPreprocessor(Node):
             (0, 255, 255),
             2
         )
-
+        output_msg = self.bridge.cv2_to_imgmsg(output, encoding='bgr8')
+        self.output_pub.publish(output_msg)
         # ====================================================
         # 显示调试窗口
         # ====================================================
-        cv2.imshow('Original', frame)
-        cv2.imshow('Gray', gray)
-        cv2.imshow('GaussianBlur', blurred)
-        cv2.imshow('Canny Edges', edges)
-        cv2.imshow('HSV Bright Mask', mask_bright)
-        cv2.imshow('Detection Output', output)
+        #cv2.imshow('Original', frame)
+        #cv2.imshow('Gray', gray)
+        #cv2.imshow('GaussianBlur', blurred)
+        #cv2.imshow('Canny Edges', edges)
+        #cv2.imshow('HSV Bright Mask', mask_bright)
+        #cv2.imshow('Detection Output', output)
 
-        cv2.waitKey(1)
+        #cv2.waitKey(1)
 
        
 def main(args=None):
