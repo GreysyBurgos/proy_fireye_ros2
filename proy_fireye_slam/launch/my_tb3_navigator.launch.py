@@ -17,9 +17,7 @@ def generate_launch_description():
     map_dir = LaunchConfiguration(
     'map',
     default=os.path.join(
-        os.path.expanduser('~'),
-        'proy_fireye_ros2',
-        'proy_fireye_slam',
+        get_package_share_directory('proy_fireye_slam'),
         'map',
         'my_map.yaml'
     )
