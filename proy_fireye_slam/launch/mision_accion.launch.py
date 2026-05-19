@@ -9,5 +9,12 @@ def generate_launch_description():
             name='mision_accion_servidor',
             output='screen',
             parameters=[{'use_sim_time': True}]
+        ),
+        Node(
+            package='proy_fireye_slam',
+            executable='fireye_mision_server',
+            name='lanzador_mision',
+            output='screen',
+            parameters=[{'use_sim_time': True}]
         )
     ])
