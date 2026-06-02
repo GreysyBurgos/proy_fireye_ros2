@@ -1,101 +1,97 @@
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from std_srvs.srv import Trigger
+from rclpy.action import ActionClient
+from nav2_msgs.action import NavigateToPose
 from geometry_msgs.msg import PoseStamped
-from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+from std_srvs.srv import Trigger
+import math
 
-class WaypointServiceNode(Node):
+class FollowWaypointsService(Node):
     def __init__(self):
-        super().__init__('waypoint_service_node')
-        
-        # 1. Crear el servidor del servicio (Nombre: 'iniciar_ruta')
-        self.srv = self.create_service(Trigger, 'iniciar_ruta', self.execute_route_callback)
-        
-        # 2. Inicializar el BasicNavigator
-        self.nav = BasicNavigator()
-        
-        self.get_logger().info('Servicio "iniciar_ruta" listo. Esperando llamadas...')
+        super().__init__('follow_waypoints_service')
 
-    def execute_route_callback(self, request, response):
-        self.get_logger().info('¡Llamada recibida! Preparando Nav2...')
-        
-        # Esperar a que Nav2 esté listo
-        self.nav.waitUntilNav2Active()
+        # Waypoints capturados (el último es el origen)
+        self.waypoints = [
+            (1.9831645488739014,  -0.032464444637298584),
+            (3.9874908924102783,  -0.027057688683271408),
+            (3.9696831703186035,  -1.327908992767334),
+            (7.257323265075684,   -1.3567404747009277),
+            (7.3148322105407715,   1.3639671802520752),
+            (4.005981922149658,    1.2908923625946045),
+            (3.9355010986328125,  -0.04210276901721954),
+            (1.9831645488739014,  -0.032464444637298584),
+            (-0.05399591103196144,-0.002305725123733282),  # origen
+        ]
 
-        # Crear la ruta con tus waypoints
-        ruta = []
+        self._action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        self._service = self.create_service(Trigger, 'follow_waypoints', self.service_callback)
 
-        # Punto 1
-        p1 = PoseStamped()
-        p1.header.frame_id = 'map'
-        p1.header.stamp = self.nav.get_clock().now().to_msg()
-        p1.pose.position.x = -10.287074  
-        p1.pose.position.y = -6.764256
-        p1.pose.orientation.w = 1.0
-        ruta.append(p1)
+        self.current_index = 0
+        self.running = False
 
-        # Punto 2
-        p2 = PoseStamped()
-        p2.header.frame_id = 'map'
-        p2.header.stamp = self.nav.get_clock().now().to_msg()
-        p2.pose.position.x = -2.685082
-        p2.pose.position.y = -17.167942
-        p2.pose.orientation.w = 1.0
-        ruta.append(p2)
+        self.get_logger().info('Servicio follow_waypoints listo.')
 
-        # Punto 3 
-        p3 = PoseStamped()
-        p3.header.frame_id = 'map'
-        p3.header.stamp = self.nav.get_clock().now().to_msg()
-        p3.pose.position.x = 6.6849079
-        p3.pose.position.y = -11.807257
-        p3.pose.orientation.w = 1.0
-        ruta.append(p3)
-
-        # Punto 4
-        p4 = PoseStamped()
-        p4.header.frame_id = 'map'
-        p4.header.stamp = self.nav.get_clock().now().to_msg()
-        p4.pose.position.x = 2.946637
-        p4.pose.position.y = -0.690302
-        p4.pose.orientation.w = 1.0
-        ruta.append(p4)
-
-        # Enviar la ruta completa
-        self.get_logger().info(f"Enviando ruta con {len(ruta)} puntos al robot...")
-        self.nav.followWaypoints(ruta)
-
-        # Monitorizar progreso (esto bloquea el servicio hasta que termine)
-        while not self.nav.isTaskComplete():
-            feedback = self.nav.getFeedback()
-            if feedback:
-                print(f'Visitando punto: {feedback.current_waypoint + 1} de {len(ruta)}', end='\r')
-
-        # Evaluar el resultado final y rellenar la respuesta del servicio
-        result = self.nav.getResult()
-        if result == TaskResult.SUCCEEDED:
-            self.get_logger().info('\n¡Ruta completada con éxito!')
-            response.success = True
-            response.message = "Ruta completada exitosamente."
-        else:
-            self.get_logger().warn('\nLa ruta ha fallado o ha sido cancelada.')
+    def service_callback(self, request, response):
+        if self.running:
             response.success = False
-            response.message = "Fallo al completar la ruta."
+            response.message = 'El robot ya está siguiendo waypoints.'
+            return response
 
+        self.current_index = 0
+        self.running = True
+        self.get_logger().info('Iniciando recorrido de waypoints...')
+        self.send_next_goal()
+
+        response.success = True
+        response.message = f'Recorrido iniciado con {len(self.waypoints)} puntos.'
         return response
+
+    def send_next_goal(self):
+        if self.current_index >= len(self.waypoints):
+            self.get_logger().info('✅ Recorrido completado, robot en origen.')
+            self.running = False
+            return
+
+        x, y = self.waypoints[self.current_index]
+        self.get_logger().info(f'Navegando a punto {self.current_index + 1}/{len(self.waypoints)}: x={x:.2f}, y={y:.2f}')
+
+        goal_msg = NavigateToPose.Goal()
+        pose = PoseStamped()
+        pose.header.frame_id = 'map'
+        pose.header.stamp = self.get_clock().now().to_msg()
+        pose.pose.position.x = x
+        pose.pose.position.y = y
+        pose.pose.position.z = 0.0
+        pose.pose.orientation.w = 1.0  # sin rotación específica
+
+        goal_msg.pose = pose
+
+        self._action_client.wait_for_server()
+        send_goal_future = self._action_client.send_goal_async(goal_msg)
+        send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().warn('Goal rechazado.')
+            self.running = False
+            return
+
+        result_future = goal_handle.get_result_async()
+        result_future.add_done_callback(self.goal_result_callback)
+
+    def goal_result_callback(self, future):
+        self.current_index += 1
+        self.send_next_goal()
+
 
 def main(args=None):
     rclpy.init(args=args)
-    
-    waypoint_service = WaypointServiceNode()
-    
-    try:
-        rclpy.spin(waypoint_service)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        waypoint_service.destroy_node()
-        rclpy.shutdown()
+    node = FollowWaypointsService()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
