@@ -16,7 +16,7 @@ setup(
         (os.path.join('share', package_name, 'param'), glob('param/*.yaml')),
         (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
         (os.path.join('share', package_name, 'map'), glob('map/*.pgm')),
-        (os.path.join('share', package_name, 'map'), glob('map/*.yaml'))
+        (os.path.join('share', package_name, 'map'), glob('map/*.yaml')),
 
     ],
     install_requires=['setuptools'],
@@ -30,7 +30,7 @@ setup(
         'console_scripts': [
             'initial_pose_pub = proy_fireye_slam.initial_pose_pub:main',
             'nav_to_pose = proy_fireye_slam.nav_to_pose:main',
-            'follow_waypoints = proy_fireye_slam.follow_waypoints:main',
+            'follow_waypoint = proy_fireye_slam.follow_waypoint:main',
             'fireye_mission_bt = proy_fireye_slam.fireye_mission_bt:main',
             'fireye_mision_action = proy_fireye_slam.fireye_mision_action:main',
             'fireye_mision_server = proy_fireye_slam.fireye_mision_server:main',
