@@ -34,6 +34,7 @@ setup(
             'fireye_mission_bt = proy_fireye_slam.fireye_mission_bt:main',
             'fireye_mision_action = proy_fireye_slam.fireye_mision_action:main',
             'fireye_mision_server = proy_fireye_slam.fireye_mision_server:main',
+            'yolo_detector = image_preprocessing.yolo_detector:main',
         ],
     },
 )
