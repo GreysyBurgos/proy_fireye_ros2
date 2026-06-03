@@ -1,76 +1,97 @@
+#!/usr/bin/env python3
 import rclpy
-import threading
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from rclpy.callback_groups import ReentrantCallbackGroup
-from rclpy.executors import MultiThreadedExecutor
+from nav2_msgs.action import NavigateToPose
+from geometry_msgs.msg import PoseStamped
+from std_srvs.srv import Trigger
+import math
 
-from proy_fireye_interfaces.action import Mision
-from proy_fireye_interfaces.srv import MiMovimientoMsg
-
-
-class LanzadorMision(Node):
+class FollowWaypointsService(Node):
     def __init__(self):
-        super().__init__('lanzador_mision')
-        self._cb_group = ReentrantCallbackGroup()
+        super().__init__('follow_waypoints_service')
 
-        self.create_service(
-            MiMovimientoMsg,
-            '/lanzar_mision',
-            self.callback,
-            callback_group=self._cb_group
-        )
+        # Waypoints capturados (el último es el origen)
+        self.waypoints = [
+            (1.9831645488739014,  -0.032464444637298584),
+            (3.9874908924102783,  -0.027057688683271408),
+            (3.9696831703186035,  -1.327908992767334),
+            (7.257323265075684,   -1.3567404747009277),
+            (7.3148322105407715,   1.3639671802520752),
+            (4.005981922149658,    1.2908923625946045),
+            (3.9355010986328125,  -0.04210276901721954),
+            (1.9831645488739014,  -0.032464444637298584),
+            (-0.05399591103196144,-0.002305725123733282),  # origen
+        ]
 
-        self._action_client = ActionClient(
-            self,
-            Mision,
-            '/ejecutar_mision',
-            callback_group=self._cb_group
-        )
+        self._action_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
+        self._service = self.create_service(Trigger, 'follow_waypoints', self.service_callback)
 
-    def callback(self, req, res):
-        goal = Mision.Goal()
-        goal.nombre_ruta = req.move
+        self.current_index = 0
+        self.running = False
 
-        # Event para bloquear sin llamar a spin_until_future_complete
-        done = threading.Event()
-        resultado = {}
+        self.get_logger().info('Servicio follow_waypoints listo.')
 
-        def on_goal(future_gh):
-            goal_handle = future_gh.result()
-            if not goal_handle.accepted:
-                resultado['exito'] = False
-                done.set()
-                return
+    def service_callback(self, request, response):
+        if self.running:
+            response.success = False
+            response.message = 'El robot ya está siguiendo waypoints.'
+            return response
 
-            def on_result(future_result):
-                resultado['exito'] = future_result.result().result.exito
-                done.set()
+        self.current_index = 0
+        self.running = True
+        self.get_logger().info('Iniciando recorrido de waypoints...')
+        self.send_next_goal()
 
-            goal_handle.get_result_async().add_done_callback(on_result)
+        response.success = True
+        response.message = f'Recorrido iniciado con {len(self.waypoints)} puntos.'
+        return response
 
-        self._action_client.send_goal_async(goal).add_done_callback(on_goal)
+    def send_next_goal(self):
+        if self.current_index >= len(self.waypoints):
+            self.get_logger().info('✅ Recorrido completado, robot en origen.')
+            self.running = False
+            return
 
-        # Espera bloqueante en este hilo, sin tocar el executor
-        done.wait()
+        x, y = self.waypoints[self.current_index]
+        self.get_logger().info(f'Navegando a punto {self.current_index + 1}/{len(self.waypoints)}: x={x:.2f}, y={y:.2f}')
 
-        res.success = resultado.get('exito', False)
-        return res
+        goal_msg = NavigateToPose.Goal()
+        pose = PoseStamped()
+        pose.header.frame_id = 'map'
+        pose.header.stamp = self.get_clock().now().to_msg()
+        pose.pose.position.x = x
+        pose.pose.position.y = y
+        pose.pose.position.z = 0.0
+        pose.pose.orientation.w = 1.0  # sin rotación específica
+
+        goal_msg.pose = pose
+
+        self._action_client.wait_for_server()
+        send_goal_future = self._action_client.send_goal_async(goal_msg)
+        send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        goal_handle = future.result()
+        if not goal_handle.accepted:
+            self.get_logger().warn('Goal rechazado.')
+            self.running = False
+            return
+
+        result_future = goal_handle.get_result_async()
+        result_future.add_done_callback(self.goal_result_callback)
+
+    def goal_result_callback(self, future):
+        self.current_index += 1
+        self.send_next_goal()
 
 
 def main(args=None):
     rclpy.init(args=args)
-    node = LanzadorMision()
-    executor = MultiThreadedExecutor()
-    executor.add_node(node)
-    try:
-        executor.spin()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
+    node = FollowWaypointsService()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

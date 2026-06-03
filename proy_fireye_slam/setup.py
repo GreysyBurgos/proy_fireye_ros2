@@ -32,7 +32,6 @@ setup(
             'nav_to_pose = proy_fireye_slam.nav_to_pose:main',
             'follow_waypoint = proy_fireye_slam.follow_waypoint:main',
             'fireye_mission_bt = proy_fireye_slam.fireye_mission_bt:main',
-            'fireye_mision_action = proy_fireye_slam.fireye_mision_action:main',
             'fireye_mision_server = proy_fireye_slam.fireye_mision_server:main',
         ],
     },

@@ -104,47 +104,23 @@
       <pose>-8 5 0 0 0 0</pose>
     </include>
 
-    <model name="obstacle1">
-      <static>true</static>
-      <pose>2 2 0.5 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>1 1 1</size></box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box><size>1 1 1</size></box>
-          </geometry>
-          <material>
-            <ambient>1 0 0 1</ambient>
-            <diffuse>1 0 0 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
+    <include>
+      <name>lata_cocacola</name>
+      <uri>https://fuel.gazebosim.org/1.0/hmoyen/models/Coke%20Can%20Steel</uri>
+      <pose>5.0 5.0 6.7 0 0 0</pose>
+    </include>
 
-    <model name="obstacle2">
-      <static>true</static>
-      <pose>-3 1 0.5 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry>
-            <box><size>1 1 1</size></box>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <box><size>1 1 1</size></box>
-          </geometry>
-          <material>
-            <ambient>0 0 1 1</ambient>
-            <diffuse>0 0 1 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
+    <include>
+      <name>lata_comida</name>
+      <uri>https://fuel.gazebosim.org/1.0/mallofrench/models/Master%20Chef%20Can</uri>
+      <pose>3.5 6.0 6.7 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>botella_cristal</name>
+      <uri>https://fuel.gazebosim.org/1.0/monkescripts/models/robosub25_bottle</uri>
+      <pose>5.5 6.0 0.01 0 0 0</pose>
+    </include>
 
   </world>
 </sdf>
